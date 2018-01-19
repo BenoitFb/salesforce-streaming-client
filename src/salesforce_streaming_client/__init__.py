@@ -34,7 +34,7 @@ import gevent.queue
 import urllib
 import errno
 from glob import glob
-from random import choice
+from random import sample
 from string import ascii_lowercase
 from datetime import datetime
 from datetime import timedelta
@@ -110,7 +110,7 @@ class SalesforceStreamingClient(BayeuxClient):
 
         if replay_client_id is None:
             replay_client_id = \
-                ''.join(choice(ascii_lowercase) for i in xrange(12))
+                ''.join(sample(ascii_lowercase, 12))
 
         self.replay_data_filename = os.path.join(
             self.settings_path,
@@ -253,7 +253,7 @@ class SalesforceStreamingClient(BayeuxClient):
         # Clean up old replay events for this channel
         day_ago = datetime.utcnow() - timedelta(1)  # Now minus one day
         # More python3 compatible and allows us to del inside loop
-        for replay_id, data in list(self.replay_data[channel].iteritems()):
+        for replay_id, data in list(self.replay_data[channel].items()):
             if iso_to_datetime(data['created_date']) < day_ago:
                 del self.replay_data[channel][replay_id]
 
@@ -471,12 +471,12 @@ class SalesforceStreamingClient(BayeuxClient):
             )
 
         day_ago = datetime.utcnow() - timedelta(1)  # Now minus one day
-        for channel, replays in self.replay_data.iteritems():
+        for channel, replays in self.replay_data.items():
             self.replay_data[channel] = {
                 replay_id:
                     data
                     for replay_id, data
-                    in replays.iteritems()
+                    in replays.items()
                     if iso_to_datetime(data['created_date']) >= day_ago
             }
         try:
